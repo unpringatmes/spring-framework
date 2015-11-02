@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.OrderUtils;
 import org.springframework.util.ClassUtils;
 
+import java.io.Serializable;
+
 /**
  * {@link org.springframework.aop.aspectj.AspectInstanceFactory} implementation
  * backed by a Spring {@link org.springframework.beans.factory.BeanFactory}.
@@ -33,11 +35,18 @@ import org.springframework.util.ClassUtils;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author Marc Garcia
  * @since 2.0
  * @see org.springframework.beans.factory.BeanFactory
  * @see LazySingletonAspectInstanceFactoryDecorator
  */
-public class BeanFactoryAspectInstanceFactory implements MetadataAwareAspectInstanceFactory {
+public class BeanFactoryAspectInstanceFactory
+		implements MetadataAwareAspectInstanceFactory, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7652148673685573625L;
 
 	private final BeanFactory beanFactory;
 

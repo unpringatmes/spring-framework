@@ -27,6 +27,8 @@ import org.springframework.aop.aspectj.TypePatternClassFilter;
 import org.springframework.aop.framework.AopConfigException;
 import org.springframework.aop.support.ComposablePointcut;
 
+import java.io.Serializable;
+
 /**
  * Metadata for an AspectJ aspect class, with an additional Spring AOP pointcut
  * for the per clause.
@@ -37,10 +39,16 @@ import org.springframework.aop.support.ComposablePointcut;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author Marc Garcia
  * @since 2.0
  * @see org.springframework.aop.aspectj.AspectJExpressionPointcut
  */
-public class AspectMetadata {
+public class AspectMetadata implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8873327333754213797L;
 
 	/**
 	 * AspectJ reflection information (AspectJ 5 / Java 5 specific).

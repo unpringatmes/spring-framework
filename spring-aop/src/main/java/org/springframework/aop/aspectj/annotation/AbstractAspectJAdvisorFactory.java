@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.aop.aspectj.annotation;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -54,9 +55,15 @@ import org.springframework.util.StringUtils;
  * @author Rod Johnson
  * @author Adrian Colyer
  * @author Juergen Hoeller
+ * @author Marc Garcia
  * @since 2.0
  */
-public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFactory {
+public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFactory, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4586540733791445221L;
 
 	private static final String AJC_MAGIC = "ajc$";
 
@@ -205,7 +212,12 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	 * Class modelling an AspectJ annotation, exposing its type enumeration and
 	 * pointcut String.
 	 */
-	protected static class AspectJAnnotation<A extends Annotation> {
+	protected static class AspectJAnnotation<A extends Annotation> implements Serializable {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 7597899777811875351L;
 
 		private static final String[] EXPRESSION_PROPERTIES = new String[] {"value", "pointcut"};
 
@@ -299,7 +311,12 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
 	 * ParameterNameDiscoverer implementation that analyzes the arg names
 	 * specified at the AspectJ annotation level.
 	 */
-	private static class AspectJAnnotationParameterNameDiscoverer implements ParameterNameDiscoverer {
+	private static class AspectJAnnotationParameterNameDiscoverer implements ParameterNameDiscoverer, Serializable {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 7314434842767046747L;
 
 		@Override
 		public String[] getParameterNames(Method method) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 
 package org.springframework.aop.aspectj.annotation;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import org.aopalliance.aop.Advice;
 import org.aspectj.lang.reflect.PerClauseKind;
-
+import org.springframework.aop.AopInvocationException;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.aspectj.AspectJPrecedenceInformation;
@@ -35,10 +36,17 @@ import org.springframework.aop.support.Pointcuts;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author Marc Garcia
  * @since 2.0
  */
 class InstantiationModelAwarePointcutAdvisorImpl
-		implements InstantiationModelAwarePointcutAdvisor, AspectJPrecedenceInformation {
+		implements InstantiationModelAwarePointcutAdvisor, AspectJPrecedenceInformation,
+		Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7443970913200807567L;
 
 	private final AspectJExpressionPointcut declaredPointcut;
 
@@ -46,7 +54,11 @@ class InstantiationModelAwarePointcutAdvisorImpl
 
 	private final MetadataAwareAspectInstanceFactory aspectInstanceFactory;
 
-	private final Method method;
+	private final Class<?> methodClass;
+
+	private final String methodName;
+
+	private final Class<?>[] methodParametersTypes;
 
 	private final boolean lazy;
 
@@ -67,7 +79,9 @@ class InstantiationModelAwarePointcutAdvisorImpl
 			MetadataAwareAspectInstanceFactory aif, Method method, int declarationOrderInAspect, String aspectName) {
 
 		this.declaredPointcut = ajexp;
-		this.method = method;
+		this.methodClass = method.getDeclaringClass();
+		this.methodName = method.getName();
+		this.methodParametersTypes = method.getParameterTypes();
 		this.atAspectJAdvisorFactory = af;
 		this.aspectInstanceFactory = aif;
 		this.declarationOrder = declarationOrderInAspect;
@@ -140,10 +154,17 @@ class InstantiationModelAwarePointcutAdvisorImpl
 		return (this.instantiatedAdvice != null);
 	}
 
-
 	private Advice instantiateAdvice(AspectJExpressionPointcut pcut) {
-		return this.atAspectJAdvisorFactory.getAdvice(
-				this.method, pcut, this.aspectInstanceFactory, this.declarationOrder, this.aspectName);
+		Method method = null;
+		try {
+			method = this.methodClass.getDeclaredMethod(this.methodName,
+					this.methodParametersTypes);
+		}
+		catch (NoSuchMethodException | SecurityException e) {
+			throw new AopInvocationException("Error getting method ["+this.methodName+"]",e);
+		}
+		return this.atAspectJAdvisorFactory.getAdvice(method, pcut,
+				this.aspectInstanceFactory, this.declarationOrder, this.aspectName);
 	}
 
 	public MetadataAwareAspectInstanceFactory getAspectInstanceFactory() {
@@ -190,8 +211,16 @@ class InstantiationModelAwarePointcutAdvisorImpl
 	 * creation of the advice.
 	 */
 	private void determineAdviceType() {
-		AspectJAnnotation<?> aspectJAnnotation =
-				AbstractAspectJAdvisorFactory.findAspectJAnnotationOnMethod(this.method);
+		Method method = null;
+		try {
+			method = this.methodClass.getDeclaredMethod(this.methodName,
+					this.methodParametersTypes);
+		}
+		catch (NoSuchMethodException | SecurityException e) {
+			throw new AopInvocationException("Error getting method ["+this.methodName+"]",e);
+		}
+		AspectJAnnotation<?> aspectJAnnotation = AbstractAspectJAdvisorFactory.findAspectJAnnotationOnMethod(
+				method);
 		if (aspectJAnnotation == null) {
 			this.isBeforeAdvice = false;
 			this.isAfterAdvice = false;
@@ -216,12 +245,20 @@ class InstantiationModelAwarePointcutAdvisorImpl
 		}
 	}
 
-
 	@Override
 	public String toString() {
-		return "InstantiationModelAwarePointcutAdvisor: expression [" + getDeclaredPointcut().getExpression() +
-			"]; advice method [" + this.method + "]; perClauseKind=" +
-			this.aspectInstanceFactory.getAspectMetadata().getAjType().getPerClause().getKind();
+		Method method = null;
+		try {
+			method = this.methodClass.getDeclaredMethod(this.methodName,
+					this.methodParametersTypes);
+		}
+		catch (NoSuchMethodException | SecurityException e) {
+			throw new AopInvocationException("Error getting method ["+this.methodName+"]",e);
+		}
+		return "InstantiationModelAwarePointcutAdvisor: expression ["
+				+ getDeclaredPointcut().getExpression() + "]; advice method [" + method
+				+ "]; perClauseKind="
+				+ this.aspectInstanceFactory.getAspectMetadata().getAjType().getPerClause().getKind();
 
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,23 @@ package org.springframework.aop.aspectj.annotation;
 
 import org.springframework.util.Assert;
 
+import java.io.Serializable;
+
 /**
  * Decorator to cause a {@link MetadataAwareAspectInstanceFactory} to instantiate only once.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author Marc Garcia
  * @since 2.0
  */
-public class LazySingletonAspectInstanceFactoryDecorator implements MetadataAwareAspectInstanceFactory {
+public class LazySingletonAspectInstanceFactoryDecorator
+		implements MetadataAwareAspectInstanceFactory, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8185436508003669238L;
 
 	private final MetadataAwareAspectInstanceFactory maaif;
 
@@ -36,7 +45,8 @@ public class LazySingletonAspectInstanceFactoryDecorator implements MetadataAwar
 	 * Create a new lazily initializing decorator for the given AspectInstanceFactory.
 	 * @param maaif the MetadataAwareAspectInstanceFactory to decorate
 	 */
-	public LazySingletonAspectInstanceFactoryDecorator(MetadataAwareAspectInstanceFactory maaif) {
+	public LazySingletonAspectInstanceFactoryDecorator(
+			MetadataAwareAspectInstanceFactory maaif) {
 		Assert.notNull(maaif, "AspectInstanceFactory must not be null");
 		this.maaif = maaif;
 	}
